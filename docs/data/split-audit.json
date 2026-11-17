@@ -1,0 +1,57 @@
+{
+  "train": {
+    "images": 6156,
+    "positiveImages": 2564,
+    "negativeImages": 3592,
+    "boxes": {
+      "D00": 1235,
+      "D10": 57,
+      "D20": 1591,
+      "D40": 2490
+    },
+    "excludedSourceObjects": {
+      "D01": 149,
+      "D0w0": 1,
+      "D11": 38,
+      "D43": 50,
+      "D44": 854,
+      "D50": 21
+    }
+  },
+  "validation": {
+    "images": 775,
+    "positiveImages": 333,
+    "negativeImages": 442,
+    "boxes": {
+      "D00": 145,
+      "D10": 3,
+      "D20": 221,
+      "D40": 353
+    },
+    "excludedSourceObjects": {
+      "D01": 19,
+      "D11": 4,
+      "D43": 3,
+      "D44": 108,
+      "D50": 5
+    }
+  },
+  "test": {
+    "images": 775,
+    "positiveImages": 326,
+    "negativeImages": 449,
+    "boxes": {
+      "D00": 175,
+      "D10": 8,
+      "D20": 209,
+      "D40": 344
+    },
+    "excludedSourceObjects": {
+      "D01": 11,
+      "D11": 3,
+      "D43": 4,
+      "D44": 100,
+      "D50": 2
+    }
+  }
+}

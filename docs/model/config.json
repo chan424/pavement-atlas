@@ -1,0 +1,8 @@
+{
+  "title": "YOLO11n · RDD2022 India (V. Vagale)",
+  "weights": "./india-yolo11n.onnx",
+  "sha256": "a93a8e1735aaf6cd502d13be54684b6335eb8cca1eec270d053e43550531e1f9",
+  "classes": ["D00", "D10", "D20", "D40"],
+  "size": 640,
+  "nmsIou": 0.45
+}

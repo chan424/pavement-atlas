@@ -1,0 +1,422 @@
+{
+  "dataset": "RDD2022",
+  "country": "India",
+  "license": "CC BY 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "source": "https://doi.org/10.6084/m9.figshare.21431547.v1",
+  "attribution": "Images and original annotations: Arya et al., RDD2022 (2022), CC BY 4.0.",
+  "split": "Public model block test",
+  "selection": "Examples selected for visible damage, class coverage and two images with no target annotations.",
+  "coordinateSystem": "Top-left normalized xywh, computed from the original XML image dimensions.",
+  "images": [
+    {
+      "id": "India_003567",
+      "src": "data/images/India_003567.jpg",
+      "width": 720,
+      "height": 720,
+      "country": "India",
+      "split": "Public model block test",
+      "boxes": [
+        {
+          "label": "D40",
+          "x": 0.43194444444444446,
+          "y": 0.7027777777777777,
+          "w": 0.14166666666666666,
+          "h": 0.075
+        },
+        {
+          "label": "D40",
+          "x": 0.19583333333333333,
+          "y": 0.8,
+          "w": 0.25555555555555554,
+          "h": 0.07777777777777778
+        },
+        {
+          "label": "D40",
+          "x": 0.001388888888888889,
+          "y": 0.8583333333333333,
+          "w": 0.10694444444444444,
+          "h": 0.12361111111111112
+        },
+        {
+          "label": "D40",
+          "x": 0.2638888888888889,
+          "y": 0.6583333333333333,
+          "w": 0.1111111111111111,
+          "h": 0.0763888888888889
+        },
+        {
+          "label": "D40",
+          "x": 0.5972222222222222,
+          "y": 0.7402777777777778,
+          "w": 0.06527777777777778,
+          "h": 0.0375
+        },
+        {
+          "label": "D40",
+          "x": 0.6111111111111112,
+          "y": 0.6930555555555555,
+          "w": 0.06527777777777778,
+          "h": 0.0375
+        },
+        {
+          "label": "D20",
+          "x": 0.6402777777777777,
+          "y": 0.6180555555555556,
+          "w": 0.09305555555555556,
+          "h": 0.17777777777777778
+        },
+        {
+          "label": "D20",
+          "x": 0.6069444444444444,
+          "y": 0.7944444444444444,
+          "w": 0.12638888888888888,
+          "h": 0.07361111111111111
+        },
+        {
+          "label": "D00",
+          "x": 0.8458333333333333,
+          "y": 0.7847222222222222,
+          "w": 0.034722222222222224,
+          "h": 0.0763888888888889
+        },
+        {
+          "label": "D00",
+          "x": 0.8013888888888889,
+          "y": 0.7847222222222222,
+          "w": 0.034722222222222224,
+          "h": 0.0763888888888889
+        }
+      ],
+      "otherCodes": {},
+      "sha256": "786a0ddd4fa4bbd1fb350b2895c09bf4686bb09d41347643e5303a288c0b9a18"
+    },
+    {
+      "id": "India_001687",
+      "src": "data/images/India_001687.jpg",
+      "width": 720,
+      "height": 720,
+      "country": "India",
+      "split": "Public model block test",
+      "boxes": [
+        {
+          "label": "D40",
+          "x": 0.5013888888888889,
+          "y": 0.5763888888888888,
+          "w": 0.1,
+          "h": 0.041666666666666664
+        },
+        {
+          "label": "D20",
+          "x": 0.001388888888888889,
+          "y": 0.6875,
+          "w": 0.5805555555555556,
+          "h": 0.3
+        },
+        {
+          "label": "D40",
+          "x": 0.44583333333333336,
+          "y": 0.7194444444444444,
+          "w": 0.05555555555555555,
+          "h": 0.02638888888888889
+        },
+        {
+          "label": "D40",
+          "x": 0.4527777777777778,
+          "y": 0.6222222222222222,
+          "w": 0.1,
+          "h": 0.041666666666666664
+        },
+        {
+          "label": "D40",
+          "x": 0.38472222222222224,
+          "y": 0.8194444444444444,
+          "w": 0.06111111111111111,
+          "h": 0.044444444444444446
+        },
+        {
+          "label": "D20",
+          "x": 0.6722222222222223,
+          "y": 0.6875,
+          "w": 0.19166666666666668,
+          "h": 0.14027777777777778
+        }
+      ],
+      "otherCodes": {},
+      "sha256": "21a30ec7b22ce579da6ce03ba05dfb4894fca707b9a06d54e363f66e75732192"
+    },
+    {
+      "id": "India_001421",
+      "src": "data/images/India_001421.jpg",
+      "width": 720,
+      "height": 720,
+      "country": "India",
+      "split": "Public model block test",
+      "boxes": [
+        {
+          "label": "D00",
+          "x": 0.10972222222222222,
+          "y": 0.375,
+          "w": 0.38055555555555554,
+          "h": 0.5
+        }
+      ],
+      "otherCodes": {},
+      "sha256": "ef4e07c84aa74fa840ba4efa3d1342404560ce2f8e82f0ecc06cd74c0a6242e7"
+    },
+    {
+      "id": "India_006888",
+      "src": "data/images/India_006888.jpg",
+      "width": 720,
+      "height": 720,
+      "country": "India",
+      "split": "Public model block test",
+      "boxes": [
+        {
+          "label": "D00",
+          "x": 0.13055555555555556,
+          "y": 0.40555555555555556,
+          "w": 0.3388888888888889,
+          "h": 0.5541666666666667
+        }
+      ],
+      "otherCodes": {},
+      "sha256": "0fa4e426203266b948a793c920ebdc8b550e89a1c76421037b44eb0d841f9993"
+    },
+    {
+      "id": "India_002551",
+      "src": "data/images/India_002551.jpg",
+      "width": 720,
+      "height": 720,
+      "country": "India",
+      "split": "Public model block test",
+      "boxes": [
+        {
+          "label": "D20",
+          "x": 0.009722222222222222,
+          "y": 0.6625,
+          "w": 0.8,
+          "h": 0.2361111111111111
+        },
+        {
+          "label": "D00",
+          "x": 0.06805555555555555,
+          "y": 0.5944444444444444,
+          "w": 0.43472222222222223,
+          "h": 0.39305555555555555
+        }
+      ],
+      "otherCodes": {},
+      "sha256": "55da09b40adfe48bfeb409b752617e80f2606c8a9e200568bfe6aa622058b931"
+    },
+    {
+      "id": "India_002279",
+      "src": "data/images/India_002279.jpg",
+      "width": 720,
+      "height": 720,
+      "country": "India",
+      "split": "Public model block test",
+      "boxes": [
+        {
+          "label": "D10",
+          "x": 0.21666666666666667,
+          "y": 0.7916666666666666,
+          "w": 0.5097222222222222,
+          "h": 0.09861111111111111
+        }
+      ],
+      "otherCodes": {},
+      "sha256": "cbaa7c4c10a50f262ecd145948faf17aa7bb18d44542eaaaca635600fae2760b"
+    },
+    {
+      "id": "India_000528",
+      "src": "data/images/India_000528.jpg",
+      "width": 720,
+      "height": 720,
+      "country": "India",
+      "split": "Public model block test",
+      "boxes": [
+        {
+          "label": "D10",
+          "x": 0.3277777777777778,
+          "y": 0.775,
+          "w": 0.4722222222222222,
+          "h": 0.08333333333333333
+        },
+        {
+          "label": "D00",
+          "x": 0.8055555555555556,
+          "y": 0.8444444444444444,
+          "w": 0.12361111111111112,
+          "h": 0.09166666666666666
+        }
+      ],
+      "otherCodes": {},
+      "sha256": "c70bdd47c319473375973bb1136066efa91db4bc676917cbb0fb12e35332025a"
+    },
+    {
+      "id": "India_003539",
+      "src": "data/images/India_003539.jpg",
+      "width": 720,
+      "height": 720,
+      "country": "India",
+      "split": "Public model block test",
+      "boxes": [
+        {
+          "label": "D10",
+          "x": 0.4847222222222222,
+          "y": 0.7138888888888889,
+          "w": 0.34305555555555556,
+          "h": 0.05
+        },
+        {
+          "label": "D20",
+          "x": 0.5263888888888889,
+          "y": 0.7666666666666667,
+          "w": 0.3388888888888889,
+          "h": 0.1111111111111111
+        }
+      ],
+      "otherCodes": {},
+      "sha256": "86e53474a4d48a060831c41a4ad30e57c1a8027767474a56613ac1efec8c640f"
+    },
+    {
+      "id": "India_008982",
+      "src": "data/images/India_008982.jpg",
+      "width": 720,
+      "height": 720,
+      "country": "India",
+      "split": "Public model block test",
+      "boxes": [
+        {
+          "label": "D20",
+          "x": 0.08472222222222223,
+          "y": 0.32083333333333336,
+          "w": 0.9041666666666667,
+          "h": 0.6375
+        }
+      ],
+      "otherCodes": {},
+      "sha256": "67a42ee0738180a7fe62a0cb6bf2456686c4108685cae79babb51dbdaecc1e1f"
+    },
+    {
+      "id": "India_000416",
+      "src": "data/images/India_000416.jpg",
+      "width": 720,
+      "height": 720,
+      "country": "India",
+      "split": "Public model block test",
+      "boxes": [
+        {
+          "label": "D20",
+          "x": 0.25277777777777777,
+          "y": 0.3263888888888889,
+          "w": 0.6111111111111112,
+          "h": 0.6208333333333333
+        }
+      ],
+      "otherCodes": {},
+      "sha256": "f776df58334f040f3431ea7f7ea3d0a8b13b87ee412575eb2d42cbf8fd5ed177"
+    },
+    {
+      "id": "India_000504",
+      "src": "data/images/India_000504.jpg",
+      "width": 720,
+      "height": 720,
+      "country": "India",
+      "split": "Public model block test",
+      "boxes": [
+        {
+          "label": "D20",
+          "x": 0.18333333333333332,
+          "y": 0.55,
+          "w": 0.8125,
+          "h": 0.4388888888888889
+        }
+      ],
+      "otherCodes": {},
+      "sha256": "7ad3489006b0c2781cbfc3a0e82dc6bff49bd4b25cd3d41b929c08bb74e9018d"
+    },
+    {
+      "id": "India_000440",
+      "src": "data/images/India_000440.jpg",
+      "width": 720,
+      "height": 720,
+      "country": "India",
+      "split": "Public model block test",
+      "boxes": [
+        {
+          "label": "D40",
+          "x": 0.016666666666666666,
+          "y": 0.5611111111111111,
+          "w": 0.6180555555555556,
+          "h": 0.4236111111111111
+        }
+      ],
+      "otherCodes": {},
+      "sha256": "08856b76cd90200135a02575b1b4aefd2511b5e7cc99d8b4a6a4366fc21a6ab5"
+    },
+    {
+      "id": "India_002293",
+      "src": "data/images/India_002293.jpg",
+      "width": 720,
+      "height": 720,
+      "country": "India",
+      "split": "Public model block test",
+      "boxes": [
+        {
+          "label": "D40",
+          "x": 0.03194444444444444,
+          "y": 0.5180555555555556,
+          "w": 0.5305555555555556,
+          "h": 0.43194444444444446
+        }
+      ],
+      "otherCodes": {
+        "D44": 1
+      },
+      "sha256": "aa69fa16f810d2621a56fd341cb5b74a15fa1b43996f0317d04fffc8133ace1a"
+    },
+    {
+      "id": "India_008279",
+      "src": "data/images/India_008279.jpg",
+      "width": 720,
+      "height": 720,
+      "country": "India",
+      "split": "Public model block test",
+      "boxes": [
+        {
+          "label": "D40",
+          "x": 0.004166666666666667,
+          "y": 0.6388888888888888,
+          "w": 0.5625,
+          "h": 0.3486111111111111
+        }
+      ],
+      "otherCodes": {},
+      "sha256": "5a9231906fde2211ad82eef2a8169f756dd360496d99e0aa3149930629022f01"
+    },
+    {
+      "id": "India_002278",
+      "src": "data/images/India_002278.jpg",
+      "width": 720,
+      "height": 720,
+      "country": "India",
+      "split": "Public model block test",
+      "boxes": [],
+      "otherCodes": {},
+      "sha256": "24550680fc21d4996c9b0579c6a728ff56813305841ab314183fab43c8600825"
+    },
+    {
+      "id": "India_006919",
+      "src": "data/images/India_006919.jpg",
+      "width": 720,
+      "height": 720,
+      "country": "India",
+      "split": "Public model block test",
+      "boxes": [],
+      "otherCodes": {},
+      "sha256": "6e18fb1ebd74781e8e1946c640e9d5a1a330abe50c1d9050b05fb4f31e1a1ec1"
+    }
+  ]
+}

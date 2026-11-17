@@ -1,0 +1,91 @@
+{
+  "images": 775,
+  "weights_sha256": "a93a8e1735aaf6cd502d13be54684b6335eb8cca1eec270d053e43550531e1f9",
+  "manifest_sha256": "02c661686824537a92f270aa43c028c7fc65fd23e6dbf122c431dd407c054a89",
+  "onnxruntime": "1.23.2",
+  "ap_min_score": 0.001,
+  "operating_cutoff": 0.25,
+  "iou_match": 0.5,
+  "nms_iou": 0.45,
+  "max_detections_per_image": 300,
+  "operating_points": [
+    {
+      "threshold": 0.1,
+      "tp": 418,
+      "fp": 601,
+      "fn": 318,
+      "micro_precision": 0.4102060843964671,
+      "micro_recall": 0.5679347826086957
+    },
+    {
+      "threshold": 0.25,
+      "tp": 310,
+      "fp": 172,
+      "fn": 426,
+      "micro_precision": 0.6431535269709544,
+      "micro_recall": 0.421195652173913
+    },
+    {
+      "threshold": 0.5,
+      "tp": 149,
+      "fp": 31,
+      "fn": 587,
+      "micro_precision": 0.8277777777777777,
+      "micro_recall": 0.20244565217391305
+    }
+  ],
+  "per_class": {
+    "D00": {
+      "ground_truth": 175,
+      "ap50_101": 0.35096621734523964,
+      "predictions": 71,
+      "tp": 39,
+      "fp": 32,
+      "fn": 136
+    },
+    "D10": {
+      "ground_truth": 8,
+      "ap50_101": 0.14418143524703572,
+      "predictions": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 8
+    },
+    "D20": {
+      "ground_truth": 209,
+      "ap50_101": 0.6865622125951969,
+      "predictions": 179,
+      "tp": 134,
+      "fp": 45,
+      "fn": 75
+    },
+    "D40": {
+      "ground_truth": 344,
+      "ap50_101": 0.4262634613511008,
+      "predictions": 232,
+      "tp": 137,
+      "fp": 95,
+      "fn": 207
+    }
+  },
+  "mAP50_101": 0.40199333163464324,
+  "micro_precision": 0.6431535269709544,
+  "micro_recall": 0.421195652173913,
+  "tp": 310,
+  "fp": 172,
+  "fn": 426,
+  "block_bootstrap_95_percentile": {
+    "blocks": 31,
+    "frames_per_block": 25,
+    "draws": 2000,
+    "seed": 2026,
+    "micro_precision": [
+      0.6003995901639344,
+      0.6871197202655962
+    ],
+    "micro_recall": [
+      0.3818136167992696,
+      0.46154096228868663
+    ]
+  }
+}
