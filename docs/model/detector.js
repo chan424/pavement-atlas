@@ -35,7 +35,7 @@ function inferenceWorker() {
     const {id, progress, error, result} = event.data;
     const task = waiting.get(id);
     if (!task) return;
-    if (progress) {task.onProgress(progress); return;}
+    if (progress) {task.onProgress(progress, event.data.percent); return;}
     waiting.delete(id);
     if (error) task.reject(new Error(error));
     else task.resolve(result);
@@ -51,6 +51,23 @@ function inferenceWorker() {
   return worker;
 }
 
+let canvas, ctx;
+// Fires a page-level event so any view can show model loading progress.
+const announce = (text, percent) => self.dispatchEvent?.(new CustomEvent('pa-model', {detail: {text, percent}}));
+let ready = null;
+export function modelReady() { return ready; }
+
+// Load and verify the model without running a frame (used by live mode and the offline button).
+export async function preload({onProgress = () => {}} = {}) {
+  const config = await settings();
+  const engine = inferenceWorker();
+  const id = ++sequence;
+  return new Promise((resolve, reject) => {
+    waiting.set(id, {onProgress: (t, p) => {announce(t, p); onProgress(t, p);}, resolve: r => {ready = r; announce('ready', 100); resolve(r);}, reject: e => {announce('error', null); reject(e);}});
+    engine.postMessage({id, type: 'load', config});
+  });
+}
+
 export async function detect(image, {threshold = 0.25, onProgress = () => {}} = {}) {
   const width = image.naturalWidth || image.videoWidth || image.width;
   const height = image.naturalHeight || image.videoHeight || image.height;
@@ -59,9 +76,11 @@ export async function detect(image, {threshold = 0.25, onProgress = () => {}} = 
   const config = await settings();
   const size = config.size;
   const geometry = letterboxGeometry(width, height, size);
-  const canvas = document.createElement('canvas');
-  canvas.width = canvas.height = size;
-  const ctx = canvas.getContext('2d', {willReadFrequently: true});
+  if (!canvas || canvas.width !== size) {
+    canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    ctx = canvas.getContext('2d', {willReadFrequently: true});
+  }
   ctx.fillStyle = 'rgb(114,114,114)';
   ctx.fillRect(0, 0, size, size);
   ctx.drawImage(image, geometry.left, geometry.top, geometry.scaledWidth, geometry.scaledHeight);
@@ -69,7 +88,7 @@ export async function detect(image, {threshold = 0.25, onProgress = () => {}} = 
   const engine = inferenceWorker();
   const id = ++sequence;
   return new Promise((resolve, reject) => {
-    waiting.set(id, {onProgress, resolve, reject});
+    waiting.set(id, {onProgress: (t, p) => {if (p !== undefined) announce(t, p); onProgress(t, p);}, resolve: r => {if (!ready) {ready = {ready: true, backend: {name: r.backend || 'wasm'}, model: r.model}; announce('ready', 100);} resolve(r);}, reject: e => {if (!ready) announce('error', null); reject(e);}});
     try {engine.postMessage({id, data, geometry, threshold, config}, [data.buffer]);}
     catch (error) {waiting.delete(id); reject(error);}
   });
