@@ -1,23 +1,13 @@
-import {recordOperation} from './storage.js';
+import {recordOperation,putMany,prefs} from './storage.js';
 import {renderStudy,prependEvaluation} from './study.js';
+import {$,q,names,label,swatch,tag,button,canonicalBox,toast,emit,api} from './shared.js';
+import './ui.js';
+import './home.js';
+import './live.js';
+import './mapview.js';
+import './help.js';
+import {startTour,maybeAutoTour} from './tour.js';
 
-const $ = id => document.getElementById(id);
-const q = (tag, cls, content) => {
-  const el = document.createElement(tag);
-  if (cls) el.className = cls;
-  if (content !== undefined) el.textContent = content;
-  return el;
-};
-const names = {D00:'Longitudinal crack',D10:'Transverse crack',D20:'Alligator crack',D40:'Pothole',OTHER:'Other corruption'};
-const palette = {D00:'#dbfb72',D10:'#91dfff',D20:'#ffb96d',D40:'#ff929e',OTHER:'#d3aafe'};
-const label = code => names[code] || code;
-const swatch = code => palette[code] || palette.OTHER;
-function button(title, listener, cls='small') {
-  const b = q('button', cls, title);
-  b.type = 'button';
-  b.addEventListener('click', listener);
-  return b;
-}
 function showStatus(text) { $('status').textContent=text; }
 const state = {sample:null, blob:null,imageUrl:null, revision:0, layers:{reference:[],ai:[]}, layer:'reference', model:null, runtime:null, ran:false, dirty:false, editing:null, drawing:false, show:true, recordId:null, busy:false, loading:false, lens:[0.5,0.72], modelSha256:null};
 let samples=[], filtered=[], page=0, records=[];
@@ -27,14 +17,6 @@ const threshold=()=> Number($('threshold').value);
 const visibleBoxes=()=> boxes().filter(b=>b.decision!=='rejected' && (b.score==null || b.score>=threshold()));
 const markDirty=()=>{state.dirty=true; $('saveState').textContent='Unsaved changes.';};
 const mayReplace=()=>!state.dirty || confirm('Discard unsaved changes to this frame?');
-const tag=(code,count)=>{
-  const el=q('span','tag');
-  const dot=q('i');
-  dot.style.setProperty('--swatch',swatch(code));
-  el.append(dot, document.createTextNode(code+(count===undefined?'':' × '+count)));
-  el.title=label(code);
-  return el;
-};
 function resizeSurface(){
   const image=$('frame'), view=$('viewport');
   if(!image.naturalWidth) return;
@@ -122,9 +104,6 @@ function render(){
   $('toggleBoxes').textContent=state.show?'Hide boxes':'Show boxes';
   renderBoxes();
 }
-function canonicalBox(code, box, source, score=null){
-  return {id:crypto.randomUUID(),code,originalCode:code,originalBox:[...box],box:[...box],score,source,decision:'pending'};
-}
 function clearFields(){
   $('recordForm').reset();$('saveState').textContent='';
 }
@@ -156,12 +135,15 @@ async function selectFrame(sample,blob=null,record=null){
   render();renderGallery();return true;
 }
 $('frame').addEventListener('load',()=>{resizeSurface();renderOverlay();});
-$('upload').addEventListener('change',async e=>{
+async function openFile(e){
   const file=e.target.files[0];e.target.value='';
   if(!file)return;
-  if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>25*1024*1024){showStatus('Choose a JPEG, PNG or WebP under 25 MB.');return;}
-  await selectFrame({id:file.name,split:'Field upload',country:'Field',src:null,boxes:[]},file);
-});
+  if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>25*1024*1024){showStatus('Choose a JPEG, PNG or WebP under 25 MB.');toast('Choose a JPEG, PNG or WebP under 25 MB.',{type:'error'});return;}
+  const name=file.name&&file.name!=='image.jpg'?file.name:'Photo '+new Date().toLocaleString();
+  if(await selectFrame({id:name,split:'Field upload',country:'Field',src:null,boxes:[]},file))toast('Image ready. Tap Run detector to find damage.',{action:'Run now',onAction:()=>$('run').click()});
+}
+$('upload').addEventListener('change',openFile);
+$('capture').addEventListener('change',openFile);
 $('refLayer').onclick=()=>changeLayer('reference');
 $('aiLayer').onclick=()=>changeLayer('ai');
 function changeLayer(layer){
@@ -177,16 +159,18 @@ $('run').onclick=async()=>{
   if(state.layers.ai.some(b=>b.source==='Manual'||b.decision!=='pending'||b.originalCode!==b.code||b.box.some((x,i)=>x!==(b.originalBox||b.box)[i]))&&!confirm('Replace the edited AI layer with fresh predictions?'))return;
   const rev=state.revision;
   state.busy=true;state.drawing=false;showStatus('Loading the local road-damage model…');render();
+  $('deskBusy').hidden=false;$('deskBusyText').textContent='Analysing the frame…';
   try{
     const {detect}=await import('./model/detector.js');
     if(rev!==state.revision)return;
-    const result=await detect($('frame'),{threshold:0.05,onProgress:msg=>{if(rev===state.revision&&typeof msg==='string')showStatus(msg);}});
+    const result=await detect($('frame'),{threshold:0.05,onProgress:msg=>{if(rev===state.revision&&typeof msg==='string'){showStatus(msg);$('deskBusyText').textContent=msg;}}});
     if(rev!==state.revision)return;
     state.layers.ai=result.detections.map(d=>canonicalBox(d.code,d.box,'Detector',d.score));
     state.ran=true;state.model=result.model;state.modelSha256=result.modelSha256;state.runtime=result.elapsedMs;state.layer='ai';markDirty();
     showStatus(result.model+' · '+Math.round(result.elapsedMs)+' ms · '+visibleBoxes().length+' above cutoff.');
-  }catch(err){if(rev===state.revision)showStatus('Analysis failed. '+err.message);}
-  finally{if(rev===state.revision){state.busy=false;render();}}
+    toast(visibleBoxes().length?visibleBoxes().length+' damage box'+(visibleBoxes().length===1?'':'es')+' found. Review them below, then save.':'No damage above the cutoff. Try a lower cutoff or check the photo yourself.',{type:visibleBoxes().length?'success':'info'});
+  }catch(err){if(rev===state.revision){showStatus('Analysis failed. '+err.message);toast('Analysis failed. '+err.message,{type:'error',timeout:7000});}}
+  finally{$('deskBusy').hidden=true;if(rev===state.revision){state.busy=false;render();}}
 };
 function renderGallery(){
   const gallery=$('gallery');gallery.replaceChildren();const entries=filtered.slice(page*pageSize,(page+1)*pageSize);
@@ -238,14 +222,15 @@ $('recordForm').onsubmit=async e=>{
   const lat=$('lat').value,lon=$('lon').value;
   if((lat==='')!==(lon==='')){$('saveState').textContent='Enter both coordinates or leave both empty.';return;}
   const id=state.recordId||crypto.randomUUID();state.recordId=id;
-  const data={id,updated:new Date().toISOString(),sample:state.sample,blob:state.blob,activeLayer:state.layer,layers:state.layers,model:state.model,modelSha256:state.modelSha256,elapsedMs:state.runtime,ran:state.ran,road:$('route').value.trim(),notes:$('notes').value.trim(),latitude:lat===''?null:Number(lat),longitude:lon===''?null:Number(lon),cutoff:threshold()};
-  try{await recordOperation('put',data);if(state.recordId===id){state.dirty=false;$('saveState').textContent='Saved to the field register.';}}
-  catch{$('saveState').textContent='Could not save. Check available browser storage and retry.';}
+  const prior=api.records.find(r=>r.id===id);
+  const data={id,updated:new Date().toISOString(),created:prior?.created,origin:prior?.origin||'desk',sample:state.sample,blob:state.blob,activeLayer:state.layer,layers:state.layers,model:state.model,modelSha256:state.modelSha256,elapsedMs:state.runtime,ran:state.ran,road:$('route').value.trim(),notes:$('notes').value.trim(),latitude:lat===''?null:Number(lat),longitude:lon===''?null:Number(lon),cutoff:threshold()};
+  try{await recordOperation('put',data);if(state.recordId===id){state.dirty=false;$('saveState').textContent='Saved to the field register.';}toast('Saved to the field register.',{type:'success',action:'View register',onAction:()=>location.hash='register'});refreshRecords();}
+  catch{$('saveState').textContent='Could not save. Check available browser storage and retry.';toast('Could not save. Check available browser storage and retry.',{type:'error'});}
 };
 window.addEventListener('beforeunload',e=>{if(state.dirty){e.preventDefault();e.returnValue='';}});
 async function refreshRecords(){
-  try{records=(await recordOperation('getAll')).sort((a,b)=>b.updated.localeCompare(a.updated));$('regStatus').textContent='';drawRecords();}
-  catch{$('regStatus').textContent='This browser could not open the local database.';}
+  try{records=(await recordOperation('getAll')).sort((a,b)=>b.updated.localeCompare(a.updated));api.records=records;$('regStatus').textContent='';drawRecords();updateRoadList();emit('records',records);}
+  catch{$('regStatus').textContent='This browser could not open the local database.';emit('records',api.records);}
 }
 function drawRecords(){
   $('regStats').replaceChildren();
@@ -277,12 +262,14 @@ function drawRecords(){
   if(!shown.length)list.append(q('p','blank',records.length?'No matching records.':'Your register is empty. Open a road frame, review the boxes and save your first record.'));
   for(const r of shown){
     const row=q('div','recordrow'),info=q('div'),actions=q('div','rowacts');
-    info.append(q('strong',null,r.road||r.sample.id),q('small',null,r.sample.id+' · '+r.activeLayer+' · '+new Date(r.updated).toLocaleString()));
-    actions.append(button('Open',async()=>{if(await selectFrame(r.sample,r.blob,r))location.hash='desk';}),button('Delete',async()=>{
+    const meta=q('div');meta.append(q('strong',null,r.road||r.sample.id),q('small',null,r.sample.id+' · '+r.activeLayer+' · '+new Date(r.updated).toLocaleString()+(r.origin&&r.origin!=='desk'?' · '+r.origin:'')+(r.latitude!=null?' · 📍':'')));info.append(meta);
+    const thumb=q('img','thumb');thumb.alt='';thumb.loading='lazy';thumb.src=thumbUrlOf(r);info.prepend(thumb);info.classList.add('recinfo');
+    actions.append(button('Open',()=>openRecord(r)),button('Delete',async()=>{
       if(!confirm('Delete this saved record and its stored image?'))return;
-      try{await recordOperation('delete',r.id);if(state.recordId===r.id)state.recordId=null;await refreshRecords();}catch{$('regStatus').textContent='Delete failed. Please retry.';}
+      try{await recordOperation('delete',r.id);if(state.recordId===r.id)state.recordId=null;await refreshRecords();toast('Record deleted.');}catch{$('regStatus').textContent='Delete failed. Please retry.';}
     }));row.append(info,actions);list.append(row);
   }
+  $('expBackup').disabled=!records.length;
   for(const k of ['expCsv','expGeo','expJson'])$(k).disabled=k==='expGeo'?!records.some(r=>r.latitude!=null):!records.length;
 }
 $('recordSearch').oninput=drawRecords;
@@ -304,16 +291,74 @@ function exportData(kind){
   $('regStatus').textContent=kind==='geojson'?'Exported geolocated records. Coordinates use longitude, latitude order.':'Exported all saved records. JSON and CSV contain metadata and boxes. Photo files stay on this device.';
 }
 $('expJson').onclick=()=>exportData('json');$('expCsv').onclick=()=>exportData('csv');$('expGeo').onclick=()=>exportData('geojson');
-function navigate(){const route=['desk','register','study'].includes(location.hash.slice(1))?location.hash.slice(1):'desk';for(const id of ['desk','register','study'])$(id).hidden=id!==route;document.querySelectorAll('[data-view]').forEach(a=>{if(a.dataset.view===route)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});if(route==='register')refreshRecords();if(route==='desk')requestAnimationFrame(resizeSurface);window.scrollTo(0,0);}
+const routes=['home','desk','live','register','map','study','help'];
+let currentRoute=null;
+function navigate(){const hash=location.hash.slice(1);
+  // In-page help anchors (#h-...) keep the help view open and scroll to the section.
+  if(hash.startsWith('h-')&&document.getElementById(hash)){if(currentRoute!=='help'){for(const id of routes)$(id).hidden=id!=='help';currentRoute='help';markNav('help');emit('route','help');}requestAnimationFrame(()=>document.getElementById(hash).scrollIntoView({behavior:'smooth',block:'start'}));return;}
+  const route=routes.includes(hash)?hash:'home';const changed=route!==currentRoute;currentRoute=route;for(const id of routes)$(id).hidden=id!==route;markNav(route);emit('route',route);document.title=({home:'Dashboard',desk:'Survey desk',live:'Live camera',register:'Field register',map:'Map',study:'Model study',help:'How to use'})[route]+' · Pavement Atlas';if(changed&&document.activeElement&&document.activeElement.closest?.('nav'))$('main').focus({preventScroll:true});
+  if(route==='register')refreshRecords();if(route==='desk')requestAnimationFrame(resizeSurface);window.scrollTo(0,0);}
+function markNav(route){document.querySelectorAll('[data-view]').forEach(a=>{if(a.dataset.view===route)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});}
 window.addEventListener('hashchange',navigate);renderStudy($('studyContent'));prependEvaluation($('studyContent')).catch(()=>{});navigate();
 async function init(){
-  render();
+  render();refreshRecords();
   try{
     const res=await fetch('./data/manifest.json');if(!res.ok)throw Error('Sample manifest missing');
     const m=await res.json();samples=m.images;filtered=samples;
     $('credits').textContent=typeof m.attribution==='string'?m.attribution:'Road imagery and annotations from RDD2022, Arya et al. See the data documentation for source and licence.';
     if(!samples.length)throw Error('No packaged reference images');
+    api.samples=samples;emit('samples',samples);
     renderGallery();if(!state.sample && !state.loading)await selectFrame(samples[0]);
+    maybeAutoTour();
   }catch{showStatus('Reference images could not load. Open a road image to begin.');if(!state.sample){$('frameName').textContent='No frame selected';$('surface').hidden=true;$('emptyFrame').hidden=false;}}
 }
 init();
+
+// ---- Additions for v2: shared API, import/restore, backups, road list ----
+function thumbUrlOf(r){return api.thumbUrl?api.thumbUrl(r):(r.sample?.src||'');}
+async function openRecord(r){
+  if(!r.blob&&!r.sample?.src){toast('This record has no stored photo (it was imported without images). Its data is still in the register and exports.',{type:'error',timeout:7000});return false;}
+  if(await selectFrame(r.sample,r.blob,r)){location.hash='desk';return true;}
+  return false;
+}
+function updateRoadList(){const roads=[...new Set(records.map(r=>r.road).filter(Boolean))].sort();$('roadList').replaceChildren(...roads.map(r=>{const o=q('option');o.value=r;return o;}));}
+const blobToDataUrl=blob=>new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>resolve(fr.result);fr.onerror=()=>reject(fr.error);fr.readAsDataURL(blob);});
+async function dataUrlToBlob(url){const res=await fetch(url);return res.blob();}
+$('expBackup').onclick=async()=>{
+  $('expBackup').disabled=true;$('regStatus').textContent='Preparing backup with photos…';
+  try{
+    const list=[];for(const r of records){const {blob,...rest}=r;list.push({...rest,imageIncluded:!!blob,imageData:blob?await blobToDataUrl(blob):null});}
+    download(JSON.stringify({format:'pavement-atlas/backup-2',app:'Pavement Atlas v2',exported:new Date().toISOString(),coordinateFormat:'normalized top-left xywh',records:list}),'application/json','pavement-atlas-backup-'+new Date().toISOString().slice(0,10)+'.json');
+    $('regStatus').textContent='Backup saved with '+list.length+' records and their photos. Keep this file safe.';toast('Backup downloaded.',{type:'success'});
+  }catch(err){$('regStatus').textContent='Backup failed. '+(err?.message||'');toast('Backup failed.',{type:'error'});}
+  finally{$('expBackup').disabled=!records.length;}
+};
+$('importFile').onchange=async e=>{
+  const file=e.target.files[0];e.target.value='';if(!file)return;
+  try{
+    if(file.size>500*1024*1024)throw Error('File is too large.');
+    const data=JSON.parse(await file.text());
+    const list=Array.isArray(data)?data:data.records;
+    if(!Array.isArray(list)||(data.format&&!String(data.format).startsWith('pavement-atlas/')))throw Error('This is not a Pavement Atlas backup or JSON export.');
+    const existing=new Map(records.map(r=>[r.id,r]));const keep=[];let skipped=0,invalid=0;
+    for(const raw of list){
+      if(!raw||typeof raw!=='object'||typeof raw.id!=='string'||!raw.layers||!raw.sample){invalid++;continue;}
+      const {imageData,imageIncluded,...r}=raw;
+      const old=existing.get(r.id);
+      if(old&&String(old.updated||'')>=String(r.updated||'')){skipped++;continue;}
+      r.blob=typeof imageData==='string'&&imageData.startsWith('data:image/')?await dataUrlToBlob(imageData):(old?.blob||null);
+      keep.push(r);
+    }
+    if(keep.length)await putMany(keep);
+    await refreshRecords();
+    const msg='Imported '+keep.length+' record'+(keep.length===1?'':'s')+(skipped?', kept '+skipped+' newer existing':'')+(invalid?', ignored '+invalid+' invalid':'')+'.';
+    $('regStatus').textContent=msg;toast(msg,{type:keep.length?'success':'info'});
+  }catch(err){const msg='Import failed. '+(err instanceof SyntaxError?'The file is not valid JSON.':err.message);$('regStatus').textContent=msg;toast(msg,{type:'error',timeout:7000});}
+};
+Object.assign(api,{openRecord,refreshRecords,selectFrame:(...a)=>selectFrame(...a),startTour,
+  runDetector:()=>{if(currentRoute==='desk')$('run').click();},
+  toggleBoxes:()=>{if(currentRoute==='desk')$('toggleBoxes').click();},
+  drawBox:()=>{if(currentRoute==='desk'&&!$('addBox').disabled)$('addBox').click();},
+  saveRecord:()=>{if(currentRoute==='desk')$('recordForm').requestSubmit();},
+  galleryStep:d=>{if(currentRoute!=='desk')return;const b=d>0?$('next'):$('prev');if(!b.disabled)b.click();},
+  route:()=>currentRoute});
